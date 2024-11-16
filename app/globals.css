@@ -19,3 +19,21 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Add styles for h2 and table */
+h3 {
+  margin: 20px 0; /* Adds vertical gaps */
+  font-size: x-large;
+  font-weight: bold;
+}
+
+table {
+  border-collapse: collapse; /* Ensures borders are collapsed */
+  width: 100%; /* Optional: makes the table full width */
+}
+
+table, th, td {
+  border: 1px solid var(--foreground); /* Adds borders to table, th, and td */
+  padding: 10px; /* Adds padding inside table cells */
+}
+
