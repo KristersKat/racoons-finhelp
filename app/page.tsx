@@ -120,6 +120,7 @@ export default function Home() {
       setResponse(data.text);
     } catch (error) {
       console.error("Error generating answer:", error);
+      console.log(response);
       setResponse("Sorry, there was an error generating your financial advice. Please try again.");
     }
   };
