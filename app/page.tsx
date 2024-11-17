@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
@@ -25,38 +25,32 @@ const questionSchemas = {
 const questions = [
   {
     id: "age",
-    text: "What is your age? (e.g., 25)",
-    prompt: "Don't worry, we won't tell anyone you're still playing Fortnite at 40 🎮",
+    text: "What is your age? (e.g., 22)",
     validation: questionSchemas.age,
   },
   {
     id: "income",
-    text: "What is your annual income? (e.g., $50,000)",
-    prompt: "Time to find out if you're eating caviar or instant ramen 🍜",
+    text: "What is your annual income? (e.g., €12,000)",
     validation: questionSchemas.income,
   },
   {
     id: "expenses",
-    text: "What are your monthly expenses? (e.g., $2,500)",
-    prompt: "Let's see how many streaming services you're 'borrowing' from family 📺",
+    text: "What are your monthly expenses? (e.g., €800)",
     validation: questionSchemas.expenses,
   },
   {
     id: "assets",
-    text: "What are your current assets? (e.g., Savings: $5,000, Checking: $2,000)",
-    prompt: "Your collection of rare Pokémon cards counts too! 💳",
+    text: "What are your current assets? (e.g., Cash: €2,000, Stocks: €1,000, Other Assets (Phone) €1,000)",
     validation: questionSchemas.assets,
   },
   {
     id: "debts",
-    text: "What are your current debts? (e.g., Student Loans: $20,000)",
-    prompt: "Those late-night Amazon purchases are coming back to haunt you 👻",
+    text: "What are your current debts? (e.g., Student Loans: €10,000)",
     validation: questionSchemas.debts,
   },
   {
     id: "goals",
-    text: "What are your financial goals? (e.g., Buy a house in 5 years, Retire at 65)",
-    prompt: "Besides becoming a TikTok millionaire, of course 🤑",
+    text: "What are your financial goals? (e.g., Buy a house in 20 years, Retire at 60)",
     validation: questionSchemas.goals,
   },
   {
@@ -83,6 +77,8 @@ export default function Home() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<string[]>(Array(questions.length).fill(""));
   const [additionalQuestion, setAdditionalQuestion] = useState<string>("");
+  const [additionalResponse, setAdditionalResponse] = useState<string | null>(null);
+  const [isAdditionalLoading, setIsAdditionalLoading] = useState<boolean>(false)
 
   const form = useForm<FormData>({
     resolver: zodResolver(createFormSchema(currentQuestionIndex)),
@@ -126,19 +122,21 @@ export default function Home() {
   };
 
   const handleAdditionalQuestionSubmit = async () => {
+    setIsAdditionalLoading(true)
     if (!additionalQuestion.trim()) return;
 
     try {
-      const res = await fetch('/api/completions', {
+      const res = await fetch('/api/questions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: additionalQuestion }),
+        body: JSON.stringify({ prompt: additionalQuestion, financial_plan: response }),
       });
 
       if (!res.ok) throw new Error("Failed to generate additional advice");
 
       const data = await res.json();
-      setResponse(data.text);
+      setAdditionalResponse(data.text);
+      setIsAdditionalLoading(false)
       setAdditionalQuestion("");
     } catch (error) {
       console.error("Error generating additional advice:", error);
@@ -202,17 +200,37 @@ export default function Home() {
                 />
               </div>
               
-              <div className="flex gap-2">
-                <Input
-                  type="text"
-                  value={additionalQuestion}
-                  onChange={(e) => setAdditionalQuestion(e.target.value)}
-                  placeholder="Ask follow-up questions..."
-                  className="flex-1"
-                />
-                <Button onClick={handleAdditionalQuestionSubmit}>
-                  Ask
-                </Button>
+              {response != "Loading..." && (
+                <div className="flex gap-2">
+                  <Input
+                    type="text"
+                    value={additionalQuestion}
+                    onChange={(e) => setAdditionalQuestion(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault(); // Prevents form submission if this input is inside a form
+                        handleAdditionalQuestionSubmit();
+                      }
+                    }}
+                    placeholder="Ask follow-up questions..."
+                    className="flex-1"
+                  />
+                  <Button onClick={handleAdditionalQuestionSubmit}>
+                    Ask
+                  </Button>
+                </div>
+              )}
+              <div className="mt-4">
+                {isAdditionalLoading ? (
+                    <p>Loading...</p>
+                  ) : (
+                    additionalResponse && (
+                      <ReactMarkdown 
+                        children={additionalResponse} 
+                        remarkPlugins={[remarkGfm]}
+                      />
+                  )
+                )}
               </div>
             </div>
           )}
