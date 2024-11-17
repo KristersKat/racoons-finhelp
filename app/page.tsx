@@ -40,7 +40,8 @@ const questions = [
   },
   {
     id: "assets",
-    text: "What are your current assets? (e.g., Cash: €2,000, Stocks: €1,000, Other Assets (Phone) €1,000)",
+    text: "What are your current assets? (e.g., Cash: €2,000, Stocks: €1,000, Other Assets (e.g., Phone) €1,000)",
+    prompt: "Be as detailed in you answer as possible",
     validation: questionSchemas.assets,
   },
   {
@@ -51,12 +52,12 @@ const questions = [
   {
     id: "goals",
     text: "What are your financial goals? (e.g., Buy a house in 20 years, Retire at 60)",
+    prompt: "Be as detailed in you answer as possible",
     validation: questionSchemas.goals,
   },
   {
     id: "riskTolerance",
     text: "What is your risk tolerance? (e.g., Moderate)",
-    prompt: "On a scale from 'piggy bank' to 'crypto YOLO' 🎲",
     validation: questionSchemas.riskTolerance,
   },
 ];
@@ -146,8 +147,9 @@ export default function Home() {
   return (
     <main className="container mx-auto px-4 py-8 max-w-2xl">
       <Card className="w-full">
+        <img src="/more.png" alt="Logo" className="h-16 mt-6 mx-8" />
         <CardHeader>
-          <CardTitle>Financial Advisor AI</CardTitle>
+          <CardTitle>More Financial Advisor</CardTitle>
           <CardDescription>
             Answer a few questions to get personalized financial advice
           </CardDescription>
